@@ -12,7 +12,8 @@ class FloodSensorData:
 
     def __init__(self, sensor_data_base64) -> None:
         sensordata_bytes = base64.b64decode(sensor_data_base64, validate=True)
-        if len(sensordata_bytes) != 20: raise ValueError('Invalid sensor data!')
+        if len(sensordata_bytes) != 20:
+            raise ValueError('invalid sensor data!')
         major = sensordata_bytes[0]
         minor = sensordata_bytes[1]
         build = sensordata_bytes[2]
@@ -26,10 +27,10 @@ class FloodSensorData:
     def _to_folat(self, bytes: bytes) -> float:
         return struct.unpack('<f', bytes)[0]
 
-    def print(self):
-        print(f"FwVersion:{self.fw_version}")
-        print(f"WaterPressure:{self.water_pressure}")
-        print(f"WaterTemperature:{self.water_temperature}")
-        print(f"AirPressure:{self.air_pressure}")
-        print(f"AirTempreture:{self.air_temperature}")
-        print(f"Battery:{self.battery}")
+    def __str__(self) -> str:
+        return f"FwVersion: {self.fw_version}\n" +\
+            f"WaterPressure: {self.water_pressure}\n" +\
+            f"WaterTemperature: {self.water_temperature}\n" +\
+            f"AirPressure: {self.air_pressure}\n" +\
+            f"AirTempreture: {self.air_temperature}\n" +\
+            f"Battery: {self.battery}\n"
