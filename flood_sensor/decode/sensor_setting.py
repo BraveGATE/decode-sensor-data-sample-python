@@ -13,15 +13,11 @@ class AliveType(Enum):
 
 
 class AliveSetting:
-    name: str
-    value: bytes
-    description: str
-
     def __init__(self, value: bytes):
         e = next(filter(lambda e: e.value[0] == value, AliveType), AliveType.Unknown)
-        self.name = e.name
-        self.value = e.value[0]
-        self.description = e.value[1]
+        self.name: str = e.name
+        self.value: bytes = e.value[0]
+        self.description: str = e.value[1]
 
     def __str__(self):
         return f'name: {self.name}, value: {self.value}, description: {self.description}'
@@ -35,10 +31,10 @@ class ScheduleSetting:
 
     _size: int = 60
 
-    daily_schedule: list = []
-    monthly_schedule: list = []
-
     def __init__(self, schedule_setting_bytes: bytes, schedule_type: str):
+        self.daily_schedule: list = []
+        self.monthly_schedule: list = []
+        
         if len(schedule_setting_bytes) != self._size:
             raise ValueError('invalid schedule setting!')
         if schedule_type not in self._bytes_data_map:
@@ -73,27 +69,16 @@ class ScheduleSetting:
 
 
 class FloodSensorSetting:
-    cable_length: int
-    send_start_waterlevel: float
-    send_interval: int
-    alive_setting: AliveSetting
-    interval: int
-    schedule_setting: ScheduleSetting
-    fw_version: str
-    hw_version: str
-    battery: int
-    sys_status: str
 
-    def _to_folat(self, bytes: bytes) -> float:
+    def __to_folat(self, bytes: bytes) -> float:
         return struct.unpack('<f', bytes)[0]
 
     def __init__(self, sensor_setting_base64):
-        sensor_setting_bytes = base64.b64decode(
-            sensor_setting_base64, validate=True)
+        sensor_setting_bytes = base64.b64decode(sensor_setting_base64, validate=True)
         if len(sensor_setting_bytes) != 166:
             raise ValueError('invalid sensor setting!')
         self.cable_length = int.from_bytes(sensor_setting_bytes[0:2], 'little')
-        self.send_start_waterlevel = self._to_folat(sensor_setting_bytes[2:6])
+        self.send_start_waterlevel = self.__to_folat(sensor_setting_bytes[2:6])
         self.send_interval = int.from_bytes(
             sensor_setting_bytes[6:10], 'little')
         self.alive_setting = AliveSetting(
